@@ -1,5 +1,5 @@
 # IFT3710
-Github pour projet EEG - ML
+
 TITLE: Analyzing the performance of transfer learning with different EEG datasets
 
 • First Dataset: Meditation vs thinking task
@@ -17,8 +17,8 @@ Team Members
 - Van Nam Vu: van.nam.vu@umontreal.ca
 
 Description of the Project
-• Motivation:
-o Generally, in machine learning, every time there’s a different dataset, we need to
+- Motivation:
+  - Generally, in machine learning, every time there’s a different dataset, we need to
 create a model that minimizes the error of validation (or test). However, with two
 different EEG datasets, it can be challenging when it comes to accurately train
 models in neuroscience, especially with deep learning methods. This is because
@@ -28,8 +28,8 @@ to very complex datasets (a lot of attributes for a few datapoints). We decide t
 introduce the concept of transfer learning to approve the accuracy of training a
 model with few EEG datapoints.
 
-• Objectives:
-o Being able to preprocess and extract essential features for different EEG datasets
-o Understand the concept of transfer learning with different EEG datasets
-o Compare the accuracy of the dataset of music thinking between different methods
-(data training from scratch vs transfer learning)
+- Objectives:
+  - Being able to preprocess and extract essential features for different EEG datasets
+  - Understand the concept of transfer learning with different EEG datasets
+  - Compare the accuracy of the dataset of music thinking between different methods
+  (data training from scratch vs transfer learning)
