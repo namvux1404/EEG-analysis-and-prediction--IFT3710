@@ -1,9 +1,13 @@
 # IFT3710
 Github pour projet EEG - ML
 TITLE: Analyzing the performance of transfer learning with different EEG datasets
+
 • First Dataset: Meditation vs thinking task
+
 o https://openneuro.org/datasets/ds003969/versions/1.0.0
+
 • Second Dataset: Music Listening
+
 o https://openneuro.org/datasets/ds003774/versions/1.0.0
 
 Team Members
