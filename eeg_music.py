@@ -62,26 +62,65 @@ print(f'\nLet\'s confirm that the length of like_path and dislike_path are equal
 print(f'Is like_path same length as qty of labels? {len(like_path) == np.count_nonzero(labels == 1)}')
 print(f'Is dislike_path same length as qty of labels? {len(dislike_path) == np.count_nonzero(labels == 0)}')
 
-#test 
-print('like_path[0] =',like_path[0]) 
 
+#test 
+like_path = like_path[0:3]
+dislike_path = dislike_path[0:3]
+print('shape of like and dislike path : ',like_path.shape[0], dislike_path.shape[0]) 
+
+print('----------------')
 # Function that reads EEG Data (set extension file)
 def read_set_data(path):
-    print('Begin read with path = ',path)
+    #print('Begin read with path = ',path)
     music_data = mne.io.read_raw_eeglab(path, preload=True)
+    
     # Preprocessing (Filtering)
     # music_data.filter(l_freq = 0.1, h_freq = 60)
     #import pdb; pdb.set_trace()
     
-    epochs = mne.make_fixed_length_epochs(music_data, duration=4, overlap=1)
+    epochs = mne.make_fixed_length_epochs(music_data, duration=3, overlap=2,preload = True)
     music_array = epochs.get_data()
+    #shape music_array = 134x129x750
     
-    print(f'Dimensions of the tensor: {music_array.shape}')
-    return music_array
+    music_array = music_array[:,:,:750]
+    #shape music_array = 134x129x750
+    
+    #keep only 4 epochs for training ?
+    number_epochs = 4
+    array_epochs = np.empty(number_epochs, dtype = object)
 
-music_array = read_set_data(all_eeg_path[0])
+    for i in range(number_epochs):
+        chosen_number = random.randint(0, music_array.shape[0]-1)
+        print(chosen_number)
+        array_epochs[i] = music_array[chosen_number]
+        
+    #print(f'Dimensions of the tensor: {array_epochs[0].shape}')
+    
+    #shape array_epochs : 129x750
+    #129 electrodes x 750 time points
+    return array_epochs
 
-print('music_array shape = ', np.shape(music_array))
+#------- read all eeg files ------ #
+print('------ Step read all eeg files --------')
+random.seed(0)
+
+like_epoch_array = np.empty((len(like_path)), dtype = object)
+dislike_epoch_array = np.empty((len(dislike_path)), dtype = object)
+print('shape of like and dislike epoch array : ',like_epoch_array.shape[0], dislike_epoch_array.shape[0])
+
+for i in range(len(like_path)):
+    print('counting i = ',i)
+    like_epoch_array[i] = read_set_data(like_path[i])
+    
+for i in range(len(dislike_path)):
+    print('counting i = ',i)
+    dislike_epoch_array[i] = read_set_data(dislike_path[i])
+
+    
+print('shape of like and dislike epoch array : ',like_epoch_array.shape[0], dislike_epoch_array.shape[0])
+#-----------
+    
+
 # Plot visualization
 #ex = mne.io.read_raw_eeglab(all_eeg_path[0], preload = True)
 #ex.plot()
