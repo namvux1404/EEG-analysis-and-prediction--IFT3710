@@ -1,14 +1,37 @@
 from glob import glob
+import os
 import mne
 import numpy as np
+import sys
+import random
 
 print('EEG ANALYSIS: MUSIC THINKING \n')
 
-all_eeg_path = glob('Music Thinking/sub-*/ses-*/eeg/*.set')
+#args[1] : path for dataset
+
+print('arg[0] = ', sys.argv[1])
+
+path = sys.argv[1]
+
+print('path =',path)
+
+#all_eeg_path = glob('Music Thinking/sub-*/ses-*/eeg/*.set')
+#need to sort file to order
+all_eeg_path = sorted(glob(path + '/*.set')) 
+
 print(f'Number of individuals: {len(all_eeg_path)}')
 
+#all_eeg_path = sorted(glob.glob('*.png'))
+
+for i in range(30):
+    print('all_eeg_path =',all_eeg_path[i])
+#print('all_eeg_path[1] = ',all_eeg_path[1])
+#print('all_eeg_path[2] = ',all_eeg_path[2])
+#import pdb; pdb.set_trace()
+
 # Array for the labels
-behaviour_data = np.genfromtxt('Music Thinking/stimuli/Behavioural_data.txt')
+#behaviour_data = np.genfromtxt('Music Thinking/stimuli/Behavioural_data.txt')
+behaviour_data = np.genfromtxt(path + '/stimuli_Behavioural_data.txt')
 behaviour_data = behaviour_data[1:]
 
 labels = behaviour_data[:, 2]
@@ -26,7 +49,7 @@ print(f'Number of people liking the music: {np.count_nonzero(labels == 1)}')  # 
 print(f'Number of people disliking the music: {np.count_nonzero(labels == 0)}')  # DISLIKE
 
 # Associate each path to the corresponding class (binary classification)
-like_path = []
+like_path = [] 
 dislike_path = []
 
 for i in range(labels.shape[0]):
@@ -39,24 +62,30 @@ print(f'\nLet\'s confirm that the length of like_path and dislike_path are equal
 print(f'Is like_path same length as qty of labels? {len(like_path) == np.count_nonzero(labels == 1)}')
 print(f'Is dislike_path same length as qty of labels? {len(dislike_path) == np.count_nonzero(labels == 0)}')
 
+#test 
+print('like_path[0] =',like_path[0]) 
 
 # Function that reads EEG Data (set extension file)
 def read_set_data(path):
+    print('Begin read with path = ',path)
     music_data = mne.io.read_raw_eeglab(path, preload=True)
     # Preprocessing (Filtering)
     # music_data.filter(l_freq = 0.1, h_freq = 60)
-
+    #import pdb; pdb.set_trace()
+    
     epochs = mne.make_fixed_length_epochs(music_data, duration=4, overlap=1)
     music_array = epochs.get_data()
-
+    
     print(f'Dimensions of the tensor: {music_array.shape}')
     return music_array
 
+music_array = read_set_data(all_eeg_path[0])
 
+print('music_array shape = ', np.shape(music_array))
 # Plot visualization
-ex = mne.io.read_raw_eeglab(all_eeg_path[0], preload = True)
-ex.plot()
-ex.plot_psd()
+#ex = mne.io.read_raw_eeglab(all_eeg_path[0], preload = True)
+#ex.plot()
+#ex.plot_psd()
 
 # Test with the first EEG
 # We have a tensor of (45, 129, 1000)
