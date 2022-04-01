@@ -62,16 +62,18 @@ print(f'\nLet\'s confirm that the length of like_path and dislike_path are equal
 print(f'Is like_path same length as qty of labels? {len(like_path) == np.count_nonzero(labels == 1)}')
 print(f'Is dislike_path same length as qty of labels? {len(dislike_path) == np.count_nonzero(labels == 0)}')
 
+print('----------------')
 
 #test 
-like_path = like_path[0:3]
-dislike_path = dislike_path[0:3]
+like_path = like_path[0:40]
+dislike_path = dislike_path[0:40]
 print('shape of like and dislike path : ',like_path.shape[0], dislike_path.shape[0]) 
 
 print('----------------')
 # Function that reads EEG Data (set extension file)
 def read_set_data(path):
-    #print('Begin read with path = ',path)
+    print('---- File path -----')
+    print('Begin read with path = ',path)
     music_data = mne.io.read_raw_eeglab(path, preload=True)
     
     # Preprocessing (Filtering)
@@ -91,7 +93,7 @@ def read_set_data(path):
 
     for i in range(number_epochs):
         chosen_number = random.randint(0, music_array.shape[0]-1)
-        print(chosen_number)
+        #print(chosen_number)
         array_epochs[i] = music_array[chosen_number]
         
     #print(f'Dimensions of the tensor: {array_epochs[0].shape}')
@@ -102,6 +104,13 @@ def read_set_data(path):
 
 #------- read all eeg files ------ #
 print('------ Step read all eeg files --------')
+
+#music_array_1 = read_set_data(like_path[0])
+#print('music_array_1 shape =',np.shape(music_array_1))
+
+#music_array_2 = read_set_data(like_path[1])
+#print('music_array_2 shape =',np.shape(music_array_2))
+
 random.seed(0)
 
 like_epoch_array = np.empty((len(like_path)), dtype = object)
@@ -119,7 +128,7 @@ for i in range(len(dislike_path)):
     
 print('shape of like and dislike epoch array : ',like_epoch_array.shape[0], dislike_epoch_array.shape[0])
 #-----------
-    
+  
 
 # Plot visualization
 #ex = mne.io.read_raw_eeglab(all_eeg_path[0], preload = True)
