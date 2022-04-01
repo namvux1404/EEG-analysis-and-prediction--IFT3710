@@ -65,8 +65,13 @@ print(f'Is dislike_path same length as qty of labels? {len(dislike_path) == np.c
 print('----------------')
 
 #test 
+<<<<<<< HEAD
+like_path = like_path[0:20]
+dislike_path = dislike_path[0:20]
+=======
 like_path = like_path[0:40]
 dislike_path = dislike_path[0:40]
+>>>>>>> d0fb2eb3a27436a7f1d6f502bcd08c92b9a45240
 print('shape of like and dislike path : ',like_path.shape[0], dislike_path.shape[0]) 
 
 print('----------------')
