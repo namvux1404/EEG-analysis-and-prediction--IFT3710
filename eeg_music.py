@@ -102,15 +102,16 @@ def read_set_data(path):
     #129 electrodes x 750 time points
     return array_epochs
 
+
 #------- read all eeg files ------ #
 print('------ Step read all eeg files --------')
 
-#music_array_1 = read_set_data(like_path[0])
-#print('music_array_1 shape =',np.shape(music_array_1))
+music_array_1 = read_set_data(dislike_path[20])
+print('music_array_1 shape =',np.shape(music_array_1))
 
 #music_array_2 = read_set_data(like_path[1])
 #print('music_array_2 shape =',np.shape(music_array_2))
-
+'''
 random.seed(0)
 
 like_epoch_array = np.empty((len(like_path)), dtype = object)
@@ -128,7 +129,7 @@ for i in range(len(dislike_path)):
     
 print('shape of like and dislike epoch array : ',like_epoch_array.shape[0], dislike_epoch_array.shape[0])
 #-----------
-  
+'''
 
 # Plot visualization
 #ex = mne.io.read_raw_eeglab(all_eeg_path[0], preload = True)
