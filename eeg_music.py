@@ -10,6 +10,8 @@ import torch.nn as nn
 import torchvision
 from torch.utils.data import Dataset, DataLoader
 import math
+from tqdm.auto import tqdm
+from sklearn.model_selection import train_test_split
 
 print('EEG ANALYSIS: MUSIC THINKING \n')
 
@@ -41,7 +43,8 @@ behaviour_data = np.genfromtxt(path + '/stimuli_Behavioural_data.txt')
 behaviour_data = behaviour_data[1:]
 
 labels = behaviour_data[:, 2]
-for i in range(labels.shape[0]):
+for i in tqdm(range(labels.shape[0])):
+    
     # Enjoyment level 1 or 2 -> enjoy the most
     if labels[i] <= 2:
         labels[i] = 1
@@ -80,6 +83,7 @@ print('----------------')
 def read_set_data(path):
     print('---- File path -----')
     print('Begin read with path = ',path)
+
     music_data = mne.io.read_raw_eeglab(path, preload=False)
     
     # Preprocessing (Filtering)
@@ -87,14 +91,16 @@ def read_set_data(path):
     #import pdb; pdb.set_trace()
     
     epochs = mne.make_fixed_length_epochs(music_data, duration=3, overlap=1,preload = False)
+    
+
     music_array = epochs.get_data()
     #shape music_array = 134x129x750
     
-    music_array = music_array[:,:,:750]
+    music_array = music_array[:,:128,:750]
     #shape music_array = 134x129x750
     
     #keep only 4 epochs for training ?
-    number_epochs = 10
+    number_epochs = 20
     array_epochs = np.empty(number_epochs, dtype = object)
 
     for i in range(number_epochs):
@@ -132,12 +138,12 @@ dislike_epoch_array = np.empty((len(dislike_path)), dtype = object)
     
 print('shape of like and dislike epoch array : ',np.shape(like_epoch_array), np.shape(dislike_epoch_array))
 
-for i in range(len(like_path)):
+for i in tqdm(range(len(like_path))):
     print('counting i = ',i)
     like_epoch_array[i] = read_set_data(like_path[i])
     #like_epoch_array.append(read_set_data(like_path[i]))
     
-for i in range(len(dislike_path)):
+for i in tqdm(range(len(dislike_path))):
     if (i == 20) : continue
     else:
         print('counting i = ',i)
@@ -168,12 +174,19 @@ print('shape like_epoch_labels and dislike_epoch_labels = ',np.shape(like_epoch_
 print('\n')
 #------------- Split dataset -------
 print(' --------Split dataset -------- ')
+X = np.hstack(np.append(like_epoch_array,dislike_epoch_array)) #15*4 = 60 *2 = 120
+Y = np.hstack(np.append(like_epoch_labels,dislike_epoch_labels))
+print(np.shape(X),np.shape(Y))
+X_train, X_val, y_train, y_val = train_test_split(X, Y, test_size=0.33, random_state=42)
+print(np.shape(X_train),np.shape(y_train),np.shape(X_val),np.shape(y_val))
+
+'''
 X_train = np.hstack(np.append(like_epoch_array[0:20], dislike_epoch_array[0:20]))
 X_val = np.hstack(np.append(like_epoch_array[20:], dislike_epoch_array[20:]))
 
 y_train = np.hstack(np.append(like_epoch_labels[0:20], dislike_epoch_labels[0:20]))
 y_val = np.hstack(np.append(like_epoch_labels[20:], dislike_epoch_labels[20:]))
-
+'''
 print(X_train[:].shape)
 print(X_val[:].shape)
 
@@ -185,8 +198,8 @@ print('X_val.shape[0][0] = ',np.shape(X_train[0][0]))
 print('\n')
 #------------- Dataloader in Torch --> to have appropriate format for model -------
 print(' -------- Dataloader in Torch -------- ')
-X_train_tensor = np.zeros((X_train.shape[0], 1, 129,750))
-X_val_tensor = np.zeros((X_val.shape[0], 1, 129,750))
+X_train_tensor = np.zeros((X_train.shape[0], 1, 128,750))
+X_val_tensor = np.zeros((X_val.shape[0], 1, 128,750))
 
 for i in range(X_train_tensor.shape[0]):
     X_train_tensor[i,0,:,:] = X_train[i]
@@ -234,12 +247,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #input_size = 129 #features : 129 electrodes
 #sequence_length = 500 #sequence : 500 timepoints
 
-input_size = 129 #features : 129 electrodes
+input_size = 128 #features : 129 electrodes
 sequence_length = 750 #sequence : 500 timepoints
 
 num_classes = 2 #classification 
-hidden_size = 256
-num_epochs = 5
+hidden_size = 64 #donne meilleur 
+num_epochs = 10
 batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
 learning_rate = 0.001
 
