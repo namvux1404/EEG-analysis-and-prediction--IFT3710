@@ -53,22 +53,10 @@ def preprocessing(path) :
     print('--Fichier preprocessing-----')
     print('path =',path)
 
-    #all_eeg_path = glob('Music Thinking/sub-*/ses-*/eeg/*.set')
-    #need to sort file to order
     all_eeg_path = sorted(glob(path + '/*.set')) 
 
     print(f'Number of individuals: {len(all_eeg_path)}')
 
-    #all_eeg_path = sorted(glob.glob('*.png'))
-
-    #for i in range(30):
-    #    print('all_eeg_path =',all_eeg_path[i])
-    #print('all_eeg_path[1] = ',all_eeg_path[1])
-    #print('all_eeg_path[2] = ',all_eeg_path[2])
-    #import pdb; pdb.set_trace()
-
-    # Array for the labels
-    #behaviour_data = np.genfromtxt('Music Thinking/stimuli/Behavioural_data.txt')
     behaviour_data = np.genfromtxt(path + '/stimuli_Behavioural_data.txt')
     behaviour_data = behaviour_data[1:]
 

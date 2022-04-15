@@ -33,35 +33,43 @@ X, Y = preprocessing(path) #Etape pour preprocessing dataset music
 
 #--- split dataset
 print(' --------Split dataset -------- ')
-X_train, X_val, y_train, y_val = train_test_split(X, Y, test_size=0.33, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.3, random_state=42)
 
-print(np.shape(X_train),np.shape(y_train),np.shape(X_val),np.shape(y_val))
+print(np.shape(X_train),np.shape(y_train),np.shape(X_test),np.shape(y_test))
 
 print(X_train[:].shape)
+print(X_test[:].shape)
 print(X_val[:].shape)
 print('X_train.shape[0] = ',X_train.shape[0])
 print('X_train.shape[0][0] = ',np.shape(X_train[0][0]))
+print('X_test.shape[0] = ',X_test.shape[0])
+print('X_test.shape[0][0] = ',np.shape(X_test[0][0]))
 print('X_val.shape[0] = ',X_val.shape[0])
-print('X_val.shape[0][0] = ',np.shape(X_train[0][0]))
+print('X_val.shape[0][0] = ',np.shape(X_val[0][0]))
 print('\n')
     
 
  #------------- Dataloader in Torch --> to have appropriate format for model -------
-def dataLoaderPytorch(x_train,x_val,input_size,seq_len):
+def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     print(' -------- Dataloader in Torch -------- ')
     x_train_tensor = np.zeros((x_train.shape[0], 1, input_size,seq_len))
+    x_test_tensor = np.zeros((x_test.shape[0], 1, input_size,seq_len))
     x_val_tensor = np.zeros((x_val.shape[0], 1, input_size,seq_len))
 
     for i in range(x_train_tensor.shape[0]):
         x_train_tensor[i,0,:,:] = x_train[i]
+        
+    for i in range(x_test_tensor.shape[0]):
+        x_test_tensor[i,0,:,:] = x_test[i]
 
     for i in range(x_val_tensor.shape[0]):
         x_val_tensor[i,0,:,:] = x_val[i]
     
-    return x_train_tensor, x_val_tensor
+    return x_train_tensor, x_val_tensor, x_test_tensor
 
 #--- Dataloader in pytorch
-X_train_tensor, X_val_tensor = dataLoaderPytorch(X_train,X_val,128,750)
+X_train_tensor, X_val_tensor, X_test_tensor = dataLoaderPytorch(X_train,X_val,X_test,128,750)
 
 class EEGTrain(Dataset):
     
@@ -85,6 +93,21 @@ class EEGVal(Dataset):
         self.x = torch.from_numpy(X_val_tensor).float()
         self.y = torch.from_numpy(y_val).long()
         self.n_samples = len(y_val)
+        
+    def __getitem__(self, index):
+        return self.x[index], self.y[index]
+    
+    def __len__(self):
+        # len(dataset)
+        return self.n_samples
+    
+class EEGTest(Dataset):
+    
+    def __init__(self):
+        #data loading
+        self.x = torch.from_numpy(X_test_tensor).float()
+        self.y = torch.from_numpy(y_test).long()
+        self.n_samples = len(y_test)
         
     def __getitem__(self, index):
         return self.x[index], self.y[index]
@@ -176,6 +199,10 @@ def RNN_music():
 
     val_data = EEGVal()
     val_dl = DataLoader(dataset = val_data, batch_size = batch_size, shuffle = True)
+    
+    test_data = EEGTest()
+    test_dl = DataLoader(dataset = test_data, batch_size = batch_size, shuffle = True)
+    print('----- done DataLoader train_data')
     print('----- done DataLoader val_data')
     print('\n')    
     print('-----------------------')
@@ -213,12 +240,13 @@ def RNN_music():
 
     print('--* done *--')
     print('-----------------------')
-    return train_dl, val_dl, model
+    return train_dl, val_dl, test_dl, model
 
-train_dl,val_dl, model = RNN_music()
+train_dl, val_dl, test_dl, model = RNN_music()
 
 check_accuracy(train_dl, model, 'Checking accuracy on training data')
-check_accuracy(val_dl, model,'Checking accuracy on test data')
+check_accuracy(val_dl, model,'Checking accuracy on val data')
+check_accuracy(test_dl, model,'Checking accuracy on test data')
               
 print('--* done *--')
 print('-----------------------')
