@@ -18,34 +18,39 @@ def read_set_data(path):
 
     music_data = mne.io.read_raw_eeglab(path, preload=False)
     
-    # Preprocessing (Filtering)
-    # music_data.filter(l_freq = 0.1, h_freq = 60)
-    #import pdb; pdb.set_trace()
+    channels = (129 * ['E'])
+    for i in range(1, 130):
+        channels[i - 1] += str(i)
+        
+    # Select the 64 electrodes among the 129 electrodes
+    number_electrodes = 64
+    kept_channels = np.empty((number_electrodes), dtype = object)
+    index_channels = np.zeros((number_electrodes), dtype = int)
+    
+    for i in range(len(kept_channels)):
+        kept_channels[i] = channels[2*i]
+        index_channels[i] = 2*i
+    
+    dropped_channels = np.delete(channels, index_channels)
+    music_data.drop_channels(dropped_channels)
     
     epochs = mne.make_fixed_length_epochs(music_data, duration=3, overlap=1,preload = False)
     
-
     music_array = epochs.get_data()
-    #shape music_array = 134x129x750
+    music_array = music_array[:,:,:750]
     
-    music_array = music_array[:,:128,:750]
-    #shape music_array = 134x129x750
-    
-    #keep only 4 epochs for training ?
     number_epochs = 20
     array_epochs = np.empty(number_epochs, dtype = object)
 
+    random.seed(0)
     for i in range(number_epochs):
         chosen_number = random.randint(0, music_array.shape[0]-1)
-        #print(chosen_number)
         
-        #array_epochs[i] = np.transpose(music_array[chosen_number])   #500x129
-        array_epochs[i] = music_array[chosen_number]                #129x500
+        array_epochs[i] = music_array[chosen_number]                #64x750
         
     print(f'Dimensions of the tensor: {array_epochs[0].shape}')
     
-    #shape array_epochs : 129x750
-    #129 electrodes x 750 time points
+    #64 electrodes x 750 time points
     return array_epochs
 
 #fonction principale pour lire les fichiers eeg et pretraiter
@@ -111,28 +116,22 @@ def preprocessing(path) :
     #music_array_2 = read_set_data(like_path[1])
     #print('music_array_2 shape =',np.shape(music_array_2))
 
-    random.seed(0)
-    
     like_epoch_array = np.empty((len(like_path)), dtype = object)
     dislike_epoch_array = np.empty((len(dislike_path)), dtype = object)
-    #like_epoch_array = []
-    #dislike_epoch_array = []
-
 
     print('shape of like and dislike epoch array : ',np.shape(like_epoch_array), np.shape(dislike_epoch_array))
 
+    random.seed(0)
     for i in tqdm(range(len(like_path))):
         print('counting i = ',i)
         like_epoch_array[i] = read_set_data(like_path[i])
-        #like_epoch_array.append(read_set_data(like_path[i]))
 
+    random.seed(0)
     for i in tqdm(range(len(dislike_path))):
         if (i == 20) : continue
         else:
             print('counting i = ',i)
             dislike_epoch_array[i] = read_set_data(dislike_path[i])
-            #dislike_epoch_array.append(read_set_data(dislike_path[i]))
-
 
     dislike_epoch_array = np.delete(dislike_epoch_array, 20, 0)
 
@@ -141,6 +140,7 @@ def preprocessing(path) :
     print('shape of dislike_epoch_array and dislike_epoch_array[0]: ',np.shape(dislike_epoch_array), np.shape(dislike_epoch_array[0][1]))
     print('\n')
     #-----------
+    
     print(' --- Create label array ---- ')
     # Assign the labels for each epoch
     like_epoch_labels = np.empty((len(like_epoch_array)), dtype = object)
@@ -155,8 +155,6 @@ def preprocessing(path) :
     print('shape like_epoch_labels and dislike_epoch_labels = ',np.shape(like_epoch_labels), np.shape(dislike_epoch_labels))
 
     print('\n')
-
-
 
     X = np.hstack(np.append(like_epoch_array,dislike_epoch_array)) #15*4 = 60 *2 = 120
     Y = np.hstack(np.append(like_epoch_labels,dislike_epoch_labels))

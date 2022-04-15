@@ -1,7 +1,7 @@
 '''
 Authors : Equipe EEG
 Fichier pour training le model RNN pour dataset Music_eeg
-Last updated : 15-04-202
+Last updated : 15-04-2022
 '''
 #file python to train the dataset of eeg music
 from glob import glob
@@ -33,8 +33,8 @@ X, Y = preprocessing(path) #Etape pour preprocessing dataset music
 
 #--- split dataset
 print(' --------Split dataset -------- ')
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.3, random_state=42)
+X_train, X_valtest, y_train, y_valtest = train_test_split(X, Y, test_size=0.30, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_valtest, y_valtest, test_size=0.5, random_state=42)
 
 print(np.shape(X_train),np.shape(y_train),np.shape(X_test),np.shape(y_test))
 
@@ -69,7 +69,7 @@ def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     return x_train_tensor, x_val_tensor, x_test_tensor
 
 #--- Dataloader in pytorch
-X_train_tensor, X_val_tensor, X_test_tensor = dataLoaderPytorch(X_train,X_val,X_test,128,750)
+X_train_tensor, X_val_tensor, X_test_tensor = dataLoaderPytorch(X_train,X_val,X_test,64,750)
 
 class EEGTrain(Dataset):
     
@@ -135,10 +135,7 @@ class RNN(nn.Module):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
 
         out, _ = self.rnn(x, h0)
-        #out, _ = self.gru(x, h0)
-        #out, _ = self.lstm(x, h0)
         # out -> (batch_size, sequence_length, hidden_size)
-        # out -> (N, 129, 128) ->> NOTE: CHANGE SEQUENCE_LENGTH AS 750 LATER (TRANPOSE           THE TENSOR)
 
         #out = out[:, -1, :]
         out = out.reshape(out.shape[0], -1)
@@ -146,7 +143,7 @@ class RNN(nn.Module):
         out = self.fc(out)
         return out
     
-def check_accuracy(loader, model,message):
+def check_accuracy(loader, model, message):
     print(message)
     
     num_correct = 0
@@ -154,12 +151,12 @@ def check_accuracy(loader, model,message):
     model.eval()
     
     with torch.no_grad():
-        for images, labels in loader:
-            #images = images.to(device = device).squeeze(1)
-            images = images.reshape(-1, sequence_length, input_size).to(device)
+        for x, labels in loader:
+            #x = x.to(device = device).squeeze(1)
+            x = x.reshape(-1, sequence_length, input_size).to(device)
             labels = labels.to(device = device)
         
-            scores = model(images)
+            scores = model(x)
             _, predictions = scores.max(1)
             num_correct += (predictions == labels).sum()
             num_samples += predictions.size(0)
@@ -174,15 +171,15 @@ def check_accuracy(loader, model,message):
 #input_size = 129 #features : 129 electrodes
 #sequence_length = 750 #sequence : 750 timepoints
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-input_size = 128 #features : 129 electrodes
+input_size = 64 #features : 129 electrodes
 sequence_length = 750 #sequence : 500 timepoints
 
 num_classes = 2 #classification 
-hidden_size = 128 #donne meilleur 
-num_epochs = 10
+hidden_size = 64 #donne meilleur 
+num_epochs = 5
 batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
 learning_rate = 0.001
-num_layers = 2
+num_layers = 3
 print('----- done hyperparameters')
 
 def RNN_music():
@@ -220,23 +217,20 @@ def RNN_music():
     print('--* Train model *--')    
     n_total_steps = len(train_dl)
     for epoch in range(num_epochs):
-        for i, (images, labels) in enumerate(train_dl):  
+        for i, (x, labels) in tqdm(enumerate(train_dl)):  
             # origin shape: [N, 1, 500,129]
             # resized: [N, 500, 129]
-            images = images.reshape(-1, sequence_length, input_size).to(device)
-            #images = images.to(device=device).squeeze(1)
+            x = x.reshape(-1, sequence_length, input_size).to(device)
             labels = labels.to(device=device)
 
             # Forward pass
-            outputs = model(images)
+            outputs = model(x)
             loss = criterion(outputs, labels)
 
             # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
-            #print (f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
 
     print('--* done *--')
     print('-----------------------')
