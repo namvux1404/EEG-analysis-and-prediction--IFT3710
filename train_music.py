@@ -176,7 +176,7 @@ sequence_length = 750 #sequence : 500 timepoints
 
 num_classes = 2 #classification 
 hidden_size = 64 #donne meilleur 
-num_epochs = 5
+num_epochs = 20
 batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
 learning_rate = 0.001
 num_layers = 3

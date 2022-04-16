@@ -47,6 +47,7 @@ def read_set_data(path):
         chosen_number = random.randint(0, music_array.shape[0]-1)
         
         array_epochs[i] = music_array[chosen_number]                #64x750
+        #array_epochs[i] = music_array[20+i]
         
     print(f'Dimensions of the tensor: {array_epochs[0].shape}')
     

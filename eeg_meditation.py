@@ -19,7 +19,7 @@ def read_bdf_data(path):
     if len(med_data.ch_names) > 64:
         med_data.drop_channels(med_data.ch_names[64:])
 
-    med_data.filter(l_freq = 4, h_freq = 45)
+    #med_data.filter(l_freq = 4, h_freq = 45)
 
     epochs = mne.make_fixed_length_epochs(med_data, duration=0.75, overlap=0.25, preload=False)
 
@@ -28,7 +28,7 @@ def read_bdf_data(path):
 
     # In music, we have number_epochs = 20.
     # In meditation, since the interval is shorter, we can add more epochs.
-    number_epochs = 60
+    number_epochs = 40
     array_epochs = np.empty(number_epochs, dtype=object)
 
     random.seed(0)
@@ -36,6 +36,7 @@ def read_bdf_data(path):
         chosen_number = random.randint(0, med_array.shape[0] - 1)
 
         array_epochs[i] = med_array[chosen_number]  # 64x750
+        #array_epochs[i] = med_array[20+i]
 
     print(f'Dimensions of the tensor: {array_epochs[0].shape}')
 
@@ -56,10 +57,10 @@ def preprocessing(path):
     print(f'Number of people who was thinking: {len(think_path)}')  # DID NOT MEDITATE
     print('----------------')
 
-    # We onlt take 20 patients instead 50 in each category.
-    med_path = med_path[0:20]
-    think_path = think_path[0:20]
-    print('shape of med and think path : ', med_path.shape[0], think_path.shape[0])
+    # We only take 10-15 patients instead 50 in each category.
+    med_path = med_path[0:12]
+    think_path = think_path[0:13]
+    print('shape of med and think path : ', len(med_path), len(think_path))
 
     print('----------------')
 
@@ -78,13 +79,13 @@ def preprocessing(path):
 
     random.seed(0)
     for i in tqdm(range(len(think_path))):
-        #if (i == 20):
-        #    continue
-        #else:
-        print('counting i = ', i)
-        think_epoch_array[i] = read_bdf_data(think_path[i])
+        if (i == 10):
+            continue
+        else:
+            print('counting i = ', i)
+            think_epoch_array[i] = read_bdf_data(think_path[i])
 
-    think_epoch_array = np.delete(think_epoch_array, 20, 0)
+    think_epoch_array = np.delete(think_epoch_array, 10, 0)
 
     print('\n')
     print('shape of med_epoch_array and med_epoch_array[0]: ', np.shape(med_epoch_array),
