@@ -248,6 +248,22 @@ def RNN_music():
 
 train_dl, val_dl, test_dl, model = RNN_music()
 
+'''
+input_size = 64 #features : 129 electrodes
+sequence_length = 750 #sequence : 500 timepoints
+
+num_classes = 2 #classification 
+hidden_size = 64 #donne meilleur 
+num_epochs = 20
+batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
+learning_rate = 0.001
+num_layers = 3
+'''
+print('-- Les parametres : ')
+print('hidden_size = ',hidden_size)
+print('num_epochs = ',num_epochs)
+print('batch_size = ',batch_size)
+
 check_accuracy(train_dl, model, 'Checking accuracy on training data')
 check_accuracy(val_dl, model,'Checking accuracy on val data')
 check_accuracy(test_dl, model,'Checking accuracy on test data')

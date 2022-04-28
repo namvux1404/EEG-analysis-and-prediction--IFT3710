@@ -183,6 +183,10 @@ for epoch in range(num_epochs):
 
 print('--* done *--')
 print('-----------------------')
+print('-- Les parametres : ')
+print('hidden_size = ',hidden_size)
+print('num_epochs = ',num_epochs)
+print('batch_size = ',batch_size)
 
 print('ACCURACY FOR MUSIC RNN')
 check_accuracy(music_train_dl, model, 'Checking accuracy on training data')
