@@ -15,13 +15,13 @@ print('TRANSFER LEARNING:')
 # PART I: TENSORS FOR MUSIC
 ################################
 
-XA_train = np.load('IFT3710/Datasets/music_train.npy')
-XA_val = np.load('IFT3710/Datasets/music_val.npy')
-XA_test = np.load('IFT3710/Datasets/music_test.npy')
+XA_train = np.load(f'IFT3710/Datasets/music_train_1.npy')
+XA_val = np.load(f'IFT3710/Datasets/music_val_1.npy')
+XA_test = np.load(f'IFT3710/Datasets/music_test_1.npy')
 
-yA_train = np.load('IFT3710/Datasets/music_train_labels.npy')
-yA_val = np.load('IFT3710/Datasets/music_val_labels.npy')
-yA_test = np.load('IFT3710/Datasets/music_test_labels.npy')
+yA_train = np.load(f'IFT3710/Datasets/music_train_labels_1.npy')
+yA_val = np.load(f'IFT3710/Datasets/music_val_labels_1.npy')
+yA_test = np.load(f'IFT3710/Datasets/music_test_labels_1.npy')
 
 print('SHAPES OF TENSORS FOR MUSIC')
 print(np.shape(XA_train), np.shape(XA_val), np.shape(XA_test))
@@ -201,6 +201,7 @@ print('-----------------------')
 # PART III: TENSORS FOR MEDITATION
 ################################
 
+'''
 XB_train = np.load('IFT3710/Datasets/med_train.npy')
 XB_val = np.load('IFT3710/Datasets/med_val.npy')
 XB_test = np.load('IFT3710/Datasets/med_test.npy')
@@ -208,6 +209,16 @@ XB_test = np.load('IFT3710/Datasets/med_test.npy')
 yB_train = np.load('IFT3710/Datasets/med_train_labels.npy')
 yB_val = np.load('IFT3710/Datasets/med_val_labels.npy')
 yB_test = np.load('IFT3710/Datasets/med_test_labels.npy')
+'''
+
+XB_train = np.load(f'IFT3710/Datasets/music_train_2.npy')
+XB_val = np.load(f'IFT3710/Datasets/music_val_2.npy')
+XB_test = np.load(f'IFT3710/Datasets/music_test_2.npy')
+
+yB_train = np.load(f'IFT3710/Datasets/music_train_labels_2.npy')
+yB_val = np.load(f'IFT3710/Datasets/music_val_labels_2.npy')
+yB_test = np.load(f'IFT3710/Datasets/music_test_labels_2.npy')
+
 
 print('SHAPES OF TENSORS FOR MEDITATION')
 print(np.shape(XB_train), np.shape(XB_val), np.shape(XB_test))

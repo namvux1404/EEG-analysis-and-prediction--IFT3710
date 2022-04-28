@@ -1,4 +1,5 @@
-# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw
+# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
+# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
 '''
 Authors : Equipe EEG
 Fichier pour training le model RNN pour dataset Music_eeg
@@ -27,30 +28,37 @@ print('EEG ANALYSIS: MUSIC THINKING \n')
 print('arg[0] = ', sys.argv[1])
 
 path = sys.argv[1]
+group_number = sys.argv[2]
 
 print('path =',path)
 
-X, Y = music_preprocessing(path) #Etape pour preprocessing dataset music
+# Etape pour preprocessing dataset music
+# Group selection
+if int(group_number) == 1:
+    X, Y = music_preprocessing(path, 0, 35)
+else:
+    X, Y = music_preprocessing(path, 36, 71)
 
-#--- split dataset
-print(' --------Split dataset -------- ')
-X_train, X_valtest, y_train, y_valtest = train_test_split(X, Y, test_size=0.30, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_valtest, y_valtest, test_size=0.5, random_state=42)
+def split_data(X,Y, size1, size2):
+    print(' --------Split dataset -------- ')
+    X_train, X_valtest, y_train, y_valtest = train_test_split(X, Y, test_size = size1, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_valtest, y_valtest, test_size = size2, random_state=42)
 
-print(np.shape(X_train),np.shape(y_train),np.shape(X_test),np.shape(y_test))
+    print(np.shape(X_train),np.shape(y_train),np.shape(X_test),np.shape(y_test))
 
-print(X_train[:].shape)
-print(X_test[:].shape)
-print(X_val[:].shape)
-print('X_train.shape[0] = ',X_train.shape[0])
-print('X_train.shape[0][0] = ',np.shape(X_train[0][0]))
-print('X_test.shape[0] = ',X_test.shape[0])
-print('X_test.shape[0][0] = ',np.shape(X_test[0][0]))
-print('X_val.shape[0] = ',X_val.shape[0])
-print('X_val.shape[0][0] = ',np.shape(X_val[0][0]))
-print('\n')
+    print(X_train[:].shape)
+    print(X_test[:].shape)
+    print(X_val[:].shape)
+    print('X_train.shape[0] = ',X_train.shape[0])
+    print('X_train.shape[0][0] = ',np.shape(X_train[0][0]))
+    print('X_test.shape[0] = ',X_test.shape[0])
+    print('X_test.shape[0][0] = ',np.shape(X_test[0][0]))
+    print('X_val.shape[0] = ',X_val.shape[0])
+    print('X_val.shape[0][0] = ',np.shape(X_val[0][0]))
+    print('\n')
     
-
+    return X_train, X_val, X_test, y_train, y_val, y_test
+    
  #------------- Dataloader in Torch --> to have appropriate format for model -------
 def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     print(' -------- Dataloader in Torch -------- ')
@@ -69,17 +77,19 @@ def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     
     return x_train_tensor, x_val_tensor, x_test_tensor
 
+
 #--- Dataloader in pytorch
+X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, Y, 0.30, 0.5)
 X_train_tensor, X_val_tensor, X_test_tensor = dataLoaderPytorch(X_train,X_val,X_test,64,750)
 
 # Save the tensors into npy files for transfer learning
-np.save('IFT3710/Datasets/music_train', X_train_tensor)
-np.save('IFT3710/Datasets/music_val', X_val_tensor)
-np.save('IFT3710/Datasets/music_test', X_test_tensor)
+np.save('IFT3710/Datasets/music_train_' + group_number, X_train_tensor)
+np.save('IFT3710/Datasets/music_val_' + group_number, X_val_tensor)
+np.save('IFT3710/Datasets/music_test_' + group_number, X_test_tensor)
 
-np.save('IFT3710/Datasets/music_train_labels', y_train)
-np.save('IFT3710/Datasets/music_val_labels', y_val)
-np.save('IFT3710/Datasets/music_test_labels', y_test)
+np.save('IFT3710/Datasets/music_train_labels_' + group_number, y_train)
+np.save('IFT3710/Datasets/music_val_labels_' + group_number, y_val)
+np.save('IFT3710/Datasets/music_test_labels_' + group_number, y_test)
 
 class EEGTrain(Dataset):
     
@@ -248,22 +258,12 @@ def RNN_music():
 
 train_dl, val_dl, test_dl, model = RNN_music()
 
-'''
-input_size = 64 #features : 129 electrodes
-sequence_length = 750 #sequence : 500 timepoints
-
-num_classes = 2 #classification 
-hidden_size = 64 #donne meilleur 
-num_epochs = 20
-batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
-learning_rate = 0.001
-num_layers = 3
-'''
 print('-- Les parametres : ')
 print('hidden_size = ',hidden_size)
 print('num_epochs = ',num_epochs)
 print('batch_size = ',batch_size)
 
+print(f'Accuracy for Group {group_number}')
 check_accuracy(train_dl, model, 'Checking accuracy on training data')
 check_accuracy(val_dl, model,'Checking accuracy on val data')
 check_accuracy(test_dl, model,'Checking accuracy on test data')
