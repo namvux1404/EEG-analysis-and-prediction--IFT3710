@@ -55,7 +55,8 @@ def read_set_data(path):
     return array_epochs
 
 #fonction principale pour lire les fichiers eeg et pretraiter
-def music_preprocessing(path) :
+#begin and end: start and ending index in the preprocessing
+def music_preprocessing(path, begin, end) :
     print('--Fichier preprocessing-----')
     print('path =',path)
 
@@ -98,8 +99,8 @@ def music_preprocessing(path) :
     print('----------------')
 
     #test 
-    like_path = like_path[0:35]
-    dislike_path = dislike_path[0:36]
+    like_path = like_path[begin:end]
+    dislike_path = dislike_path[begin:end + 1]
     print('shape of like and dislike path : ',like_path.shape[0], dislike_path.shape[0]) 
 
     print('----------------')
