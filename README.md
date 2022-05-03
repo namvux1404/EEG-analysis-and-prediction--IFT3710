@@ -33,3 +33,28 @@ model with few EEG datapoints.
   - Understand the concept of transfer learning with different EEG datasets
   - Compare the accuracy of the dataset of music thinking between different methods
   (data training from scratch vs transfer learning)
+
+**************************
+STEPS FOR RUNNING THE CODE
+**************************
+
+RNN MODEL AND TRANSFER LEARNING
+
+PART I: TRANSFER LEARNING BETWEEN DATASETS (MUSIC GROUP 1 - MEDITATION)
+- Step 1: Train the RNN Model for the music dataset (Group 1)
+	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
+- Step 2: Train the RNN Model for the meditation dataset
+	-> python IFT3710/train_meditation.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Med_eeg_raw
+- Step 3: Apply Transfer Learning from music to meditation datasets
+	-> python IFT3710/transfer_learning.py 1
+
+PART II: TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
+- Step 1: Train the RNN Model for the music dataset (Group 1)
+	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
+- Step 2: Train the RNN Model for the music dataset (Group 2)
+	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
+- Step 3: Apply Transfer Learning from group 1 to group 2
+	-> python IFT3710/transfer_learning.py 2
+
+
+
