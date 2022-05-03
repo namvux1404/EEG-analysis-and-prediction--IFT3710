@@ -38,22 +38,25 @@ model with few EEG datapoints.
 STEPS FOR RUNNING THE CODE
 **************************
 
-RNN MODEL AND TRANSFER LEARNING
-
-PART I: TRANSFER LEARNING BETWEEN DATASETS (MUSIC GROUP 1 - MEDITATION)
+PART I : RNN MODEL AND LOGISTICS REGRESSION 
 - Step 1: Train the RNN Model for the music dataset (Group 1)
-	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
-- Step 2: Train the RNN Model for the meditation dataset
-	-> python IFT3710/train_meditation.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Med_eeg_raw
-- Step 3: Apply Transfer Learning from music to meditation datasets
+	-> python IFT3710/train_music.py /home/username/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
+	
+- Step 2: Train the RNN Model for the music dataset (Group 2)
+	-> python IFT3710/train_music.py /home/username/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
+	
+- Step 3: Train the Logistics Regression Model and RNN Model for the meditation dataset
+	-> python IFT3710/train_meditation.py /home/username/projects/def-sponsor00/datasets/EEG/Med_eeg_raw
+
+TRANSFER LEARNING--
+FYI : We export and save our dataset preprocessed during part I in repo Git : IFT3710/Datasets and use it for the transfer learning. So if you execute file by file in part I with salloc in Clusters, it's should be good. But in case the execution with sbatch, we save a backup dataset preprocessed in share repo of all dataset (/home/username/projects/def-sponsor00/datasets/EEG/datasets_preprocessed)
+
+PART II : TRANSFER LEARNING BETWEEN DATASETS (MUSIC GROUP 1 - MEDITATION)
+- Step : Apply Transfer Learning from music to meditation datasets
 	-> python IFT3710/transfer_learning.py 1
 
-PART II: TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
-- Step 1: Train the RNN Model for the music dataset (Group 1)
-	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
-- Step 2: Train the RNN Model for the music dataset (Group 2)
-	-> python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
-- Step 3: Apply Transfer Learning from group 1 to group 2
+PART III : TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
+- Step : Apply Transfer Learning from group 1 to group 2
 	-> python IFT3710/transfer_learning.py 2
 
 Xgboost
