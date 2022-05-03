@@ -572,8 +572,9 @@ class EegDataSetDask(Dataset):
         return torch.from_numpy(self.x[idx].compute()),torch.from_numpy(self.labels[idx].compute())
     
 
-    
-    
+# Source code for RNN, GRU, LSTM:
+# Taken from: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
+
 class RNN(nn.Module):
     """Rnn model with one rnn layer and on final linear layer"""
     def __init__(self, input_size, hidden_size, num_layers, num_classes,device):
@@ -582,28 +583,13 @@ class RNN(nn.Module):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(input_size, hidden_size, num_layers, batch_first = True)
-        # x -> (batch_size, sequence_length, input_size)
-
-        # or:
-        #self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
-        #self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-
         self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
-        # print(x.shape)
-        
         x = torch.reshape(x,(x.shape[0],x.shape[2],x.shape[1]))
-        
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(self.device)
-        
-        # print(x.shape)
-        # print(h0.shape)
         out, _ = self.rnn(x, h0)
-        # out -> (batch_size, sequence_length, hidden_size)
-        # out -> (N, 129, 128) ->> NOTE: CHANGE SEQUENCE_LENGTH AS 750 LATER (TRANPOSE THE TENSOR)
         out = out[:, -1, :]
-        # out -> (N, 128)
         out = self.fc(out)
         return out
 
