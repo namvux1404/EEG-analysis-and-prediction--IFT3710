@@ -49,7 +49,7 @@ PART I : RNN MODEL AND LOGISTICS REGRESSION
 	-> python IFT3710/train_meditation.py /home/username/projects/def-sponsor00/datasets/EEG/Med_eeg_raw
 
 TRANSFER LEARNING--
-FYI : We export and save our dataset preprocessed during part I in repo Git : IFT3710/Datasets and use it for the transfer learning. So if you execute file by file in part I with salloc in Clusters, it's should be good. But in case the execution with sbatch, we save a backup dataset preprocessed in share repo of all dataset (/home/username/projects/def-sponsor00/datasets/EEG/datasets_preprocessed)
+FYI : We export and save our dataset preprocessed during part I in repo Git : IFT3710/Datasets and use it for the transfer learning. So if you execute file by file in part I with salloc in Clusters, it's should be good. But in case the execution with sbatch, we save a backup dataset preprocessed in share repo of all dataset (/home/username/projects/def-sponsor00/datasets/EEG/datasets_preprocessed --> change this path in transfer_learning.py before execute)
 
 PART II : TRANSFER LEARNING BETWEEN DATASETS (MUSIC GROUP 1 - MEDITATION)
 - Step : Apply Transfer Learning from music to meditation datasets
