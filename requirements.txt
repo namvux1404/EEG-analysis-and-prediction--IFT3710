@@ -1,3 +1,4 @@
+Version of python : Python 3.9
 Here is all librairies we use to run our code :
 - numpy
 - pandas
