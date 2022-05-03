@@ -1,14 +1,23 @@
-# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
-# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
 '''
 Authors : Equipe EEG
-Fichier pour training le model RNN pour dataset Music_eeg
-Last updated : 15-04-2022
+File: train_music.py
+- Preparation of the Music Dataset
+- Train the dataset with RNN Model
+
+THE CODE IS INSPIRED BY THE FOLLOWING TUTORIALS:
+1. Dataloader and Dataset in Pytorch: https://github.com/python-engineer/pytorchTutorial/blob/master/09_dataloader.py
+2. Implementation of RNN Model: taken from: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
+3. Fundamentals of the RNN Model: https://pytorch.org/docs/stable/generated/torch.nn.RNN.html 
 '''
-#file python to train the dataset of eeg music
+
+# TRAINING MUSIC - GROUP 1
+# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 1
+
+# TRAINING MUSIC - GROUP 2
+# python IFT3710/train_music.py /home/liuronni/projects/def-sponsor00/datasets/EEG/Music_eeg_raw 2
+
 from glob import glob
 import os
-#import mne
 import numpy as np
 import sys
 import random
@@ -23,22 +32,34 @@ from sklearn.model_selection import train_test_split
 from eeg_music import music_preprocessing
 
 print('EEG ANALYSIS: MUSIC THINKING \n')
-#args[1] : path for dataset
 
-print('arg[0] = ', sys.argv[1])
-
+# args[1] : path for dataset
+print('arg[1] = ', sys.argv[1])
 path = sys.argv[1]
+
+# args[2]: group number (1 or 2)
 group_number = sys.argv[2]
 
 print('path =',path)
 
-# Etape pour preprocessing dataset music
+# Preprocessing
 # Group selection
 if int(group_number) == 1:
+    # GROUP 1: Individiauls 0 to 34
     X, Y = music_preprocessing(path, 0, 35)
 else:
+    # GROUP 2: Individuals 36 to 70
     X, Y = music_preprocessing(path, 36, 71)
 
+# We have 35 individuals for each type of labels. Therefore,
+# for one group, we have 70 individuals x 20 epochs = 1400 epochs in total
+
+# DIMENSION OF THE TENSOR
+# The new preprocessed dataset's dimension: 14000 epochs x 64 electrodes x 750 timepoints
+
+# Split the dataset into training - validation - test
+# size1: ratio between training and validation/test datasets
+# size2: ratio between validation and test datasets
 def split_data(X,Y, size1, size2):
     print(' --------Split dataset -------- ')
     X_train, X_valtest, y_train, y_valtest = train_test_split(X, Y, test_size = size1, random_state=42)
@@ -59,7 +80,8 @@ def split_data(X,Y, size1, size2):
     
     return X_train, X_val, X_test, y_train, y_val, y_test
     
- #------------- Dataloader in Torch --> to have appropriate format for model -------
+   
+ # Dataloader in Pytorch --> to have appropriate format for model
 def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     print(' -------- Dataloader in Torch -------- ')
     x_train_tensor = np.zeros((x_train.shape[0], 1, input_size,seq_len))
@@ -78,7 +100,8 @@ def dataLoaderPytorch(x_train,x_val,x_test,input_size,seq_len):
     return x_train_tensor, x_val_tensor, x_test_tensor
 
 
-#--- Dataloader in pytorch
+# Dataloader in pytorch
+# Distribution of the epochs: 980 - 210 - 210 (training - validation - test)
 X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, Y, 0.30, 0.5)
 X_train_tensor, X_val_tensor, X_test_tensor = dataLoaderPytorch(X_train,X_val,X_test,64,750)
 
@@ -91,10 +114,15 @@ np.save('IFT3710/Datasets/music_train_labels_' + group_number, y_train)
 np.save('IFT3710/Datasets/music_val_labels_' + group_number, y_val)
 np.save('IFT3710/Datasets/music_test_labels_' + group_number, y_test)
 
+
+# Classes for each dataset (training, validation, test)
+
+# NOTE: The code for Dataset and Dataloaders were inspired by the tutorial:
+# Link: https://github.com/python-engineer/pytorchTutorial/blob/master/09_dataloader.py 
+
 class EEGTrain(Dataset):
     
     def __init__(self):
-        #data loading
         self.x = torch.from_numpy(X_train_tensor).float()
         self.y = torch.from_numpy(y_train).long()
         self.n_samples = len(y_train)
@@ -103,13 +131,11 @@ class EEGTrain(Dataset):
         return self.x[index], self.y[index]
     
     def __len__(self):
-        # len(dataset)
         return self.n_samples
     
 class EEGVal(Dataset):
     
     def __init__(self):
-        #data loading
         self.x = torch.from_numpy(X_val_tensor).float()
         self.y = torch.from_numpy(y_val).long()
         self.n_samples = len(y_val)
@@ -118,13 +144,11 @@ class EEGVal(Dataset):
         return self.x[index], self.y[index]
     
     def __len__(self):
-        # len(dataset)
         return self.n_samples
     
 class EEGTest(Dataset):
     
     def __init__(self):
-        #data loading
         self.x = torch.from_numpy(X_test_tensor).float()
         self.y = torch.from_numpy(y_test).long()
         self.n_samples = len(y_test)
@@ -133,46 +157,42 @@ class EEGTest(Dataset):
         return self.x[index], self.y[index]
     
     def __len__(self):
-        # len(dataset)
         return self.n_samples
     
-# NETWORK
+# RNN NETWORK
+# Link: https://pytorch.org/docs/stable/generated/torch.nn.RNN.html
+
+# The code for the RNN Model, and the training of the RNN Model is taken
+# from the following tutorial about RNN, LSTM and GRU:
+# Link: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py 
+
 class RNN(nn.Module):
+    # Taken from: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
     def __init__(self, input_size, hidden_size, num_layers, num_classes):
         super(RNN, self).__init__()
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.rnn = nn.RNN(input_size, hidden_size, num_layers, batch_first = True)
-        # x -> (batch_size, sequence_length, input_size)
-
-        # or:
-        #self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
-        #self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-
         self.fc = nn.Linear(hidden_size*sequence_length, num_classes)
 
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-
         out, _ = self.rnn(x, h0)
-        # out -> (batch_size, sequence_length, hidden_size)
-
-        #out = out[:, -1, :]
         out = out.reshape(out.shape[0], -1)
-        # out -> (N, 129)
         out = self.fc(out)
         return out
     
+    
+# Function that calculates the accuracy of our predictions
 def check_accuracy(loader, model, message):
     print(message)
-    
     num_correct = 0
     num_samples = 0
     model.eval()
     
+    # Source: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
     with torch.no_grad():
         for x, labels in loader:
-            #x = x.to(device = device).squeeze(1)
             x = x.reshape(-1, sequence_length, input_size).to(device)
             labels = labels.to(device = device)
         
@@ -186,29 +206,31 @@ def check_accuracy(loader, model, message):
         
     model.train()
 
-#create device for training model
-# HYPERPARAMETERS
-#input_size = 129 #features : 129 electrodes
-#sequence_length = 750 #sequence : 750 timepoints
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-input_size = 64 #features : 129 electrodes
-sequence_length = 750 #sequence : 500 timepoints
 
-num_classes = 2 #classification 
-hidden_size = 64 #donne meilleur 
+# Training the model
+
+# HYPERPARAMETERS
+# input_size = 64       #features : 64 electrodes
+# sequence_length = 750 #sequence : 750 timepoints
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+input_size = 64
+sequence_length = 750 
+
+# Best combination of hyperparameters: hidden_size = 64 and num_epochs = 20
+num_classes = 2 
+hidden_size = 64 
 num_epochs = 20
-batch_size = 8 #number of examples in 1 forward pass --> 4 epochs
+batch_size = 8
 learning_rate = 0.001
 num_layers = 3
-print('----- done hyperparameters')
 
+
+# Function that trains the RNN Model
 def RNN_music():
-
- 
     #------------ Phase train model -----------
     print(' --- Build model ---')
 
-    
     # DATASETS
     train_data = EEGTrain()
     train_dl = DataLoader(dataset = train_data, batch_size = batch_size, shuffle = True)
@@ -223,6 +245,7 @@ def RNN_music():
     print('----- done DataLoader val_data')
     print('\n')    
     print('-----------------------')
+    
     #----- Create model ----
     print('--* Create model *--')    
     model = RNN(input_size, hidden_size, num_layers, num_classes).to(device)
@@ -234,20 +257,17 @@ def RNN_music():
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) 
 
     # Train the model
+    # Taken from: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
     print('--* Train model *--')    
     n_total_steps = len(train_dl)
     for epoch in range(num_epochs):
         for i, (x, labels) in tqdm(enumerate(train_dl)):  
-            # origin shape: [N, 1, 500,129]
-            # resized: [N, 500, 129]
             x = x.reshape(-1, sequence_length, input_size).to(device)
             labels = labels.to(device=device)
 
-            # Forward pass
             outputs = model(x)
             loss = criterion(outputs, labels)
 
-            # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -258,11 +278,12 @@ def RNN_music():
 
 train_dl, val_dl, test_dl, model = RNN_music()
 
-print('-- Les parametres : ')
+print('-- Hyperparameters : ')
 print('hidden_size = ',hidden_size)
 print('num_epochs = ',num_epochs)
 print('batch_size = ',batch_size)
 
+# ACCURACY FOR THE GIVEN GROUP (1 OR 2): Training/validation/test datasets
 print(f'Accuracy for Group {group_number}')
 check_accuracy(train_dl, model, 'Checking accuracy on training data')
 check_accuracy(val_dl, model,'Checking accuracy on val data')

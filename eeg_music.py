@@ -1,8 +1,11 @@
 '''
-Authors : Equipe EEG
-Fichier pour training le model RNN pour dataset Music_eeg
-Last updated : 15-04-202
+Authors: EEG Team
+File: eeg_music.py
+- This file focuses on reading the raw EEG data from the music dataset.
+- The extension files of EEG signals are SET (eeglab).
+- This file will also preprocessing the dataset and separate them into features and labels.
 '''
+
 from glob import glob
 import os
 import mne
@@ -16,8 +19,10 @@ def read_set_data(path):
     print('---- File path -----')
     print('Begin read with path = ',path)
 
+    # Read the raw EEGLAB datafile
     music_data = mne.io.read_raw_eeglab(path, preload=False)
     
+    # Naming the electrodes
     channels = (129 * ['E'])
     for i in range(1, 130):
         channels[i - 1] += str(i)
@@ -27,6 +32,10 @@ def read_set_data(path):
     kept_channels = np.empty((number_electrodes), dtype = object)
     index_channels = np.zeros((number_electrodes), dtype = int)
     
+    # The channels that are kept will be 0, 2, 4, ..., 126.
+    # The mapping of the electrodes aren't accurate compared to the ones 
+    # in the meditation dataset, but this naive method ensures that
+    # the electrodes that are kept cover most of the individual's head.
     for i in range(len(kept_channels)):
         kept_channels[i] = channels[2*i]
         index_channels[i] = 2*i
@@ -34,11 +43,18 @@ def read_set_data(path):
     dropped_channels = np.delete(channels, index_channels)
     music_data.drop_channels(dropped_channels)
     
+    # Separation of each individual's EEG signals into epochs
+    # Each epoch contains 3 seconds of signals with an overlap of 1 second.
     epochs = mne.make_fixed_length_epochs(music_data, duration=3, overlap=1,preload = False)
     
+    # Convert the epochs into an numpy array type
     music_array = epochs.get_data()
+    
+    # Some epoch contains more then 750 timepoints in order to represent 3 seconds of signals.
+    # In order to prevent 
     music_array = music_array[:,:,:750]
     
+    # For each individual, we will select 20 epochs randomly
     number_epochs = 20
     array_epochs = np.empty(number_epochs, dtype = object)
 
@@ -46,16 +62,17 @@ def read_set_data(path):
     for i in range(number_epochs):
         chosen_number = random.randint(0, music_array.shape[0]-1)
         
-        array_epochs[i] = music_array[chosen_number]                #64x750
-        #array_epochs[i] = music_array[20+i]
+        array_epochs[i] = music_array[chosen_number]               
         
     print(f'Dimensions of the tensor: {array_epochs[0].shape}')
     
-    #64 electrodes x 750 time points
+    # For each epoch, we will have 64 electrodes x 750 timepoints
     return array_epochs
 
-#fonction principale pour lire les fichiers eeg et pretraiter
-#begin and end: start and ending index in the preprocessing
+
+
+# Principal function that reads all individual's EEG signals and preprocess them
+# begin and end: start and ending index in the preprocessing
 def music_preprocessing(path, begin, end) :
     print('--Fichier preprocessing-----')
     print('path =',path)
@@ -98,25 +115,19 @@ def music_preprocessing(path, begin, end) :
 
     print('----------------')
 
-    #test 
+    # We will only take individuals from indexes "begin" to "end"
+    # for each type of labels
     like_path = like_path[begin:end]
+    
+    # We changed the ending index to "end + 1" since one of the individual's EEG signals aren't 
+    # working (the file is not working) -> individual 22 specifically.
     dislike_path = dislike_path[begin:end + 1]
     print('shape of like and dislike path : ',like_path.shape[0], dislike_path.shape[0]) 
 
     print('----------------')
 
-
-
-    #------- read all eeg files ------ #
+    #------- Read all eeg files ------ #
     print('------ Step read all eeg files --------')
-
-    ## NOTE : dislike_path[20] error file, dislike_path[33]?
-
-    #music_array_1 = read_set_data(dislike_path[33])
-    #print('music_array_1 shape =',np.shape(music_array_1))
-
-    #music_array_2 = read_set_data(like_path[1])
-    #print('music_array_2 shape =',np.shape(music_array_2))
 
     like_epoch_array = np.empty((len(like_path)), dtype = object)
     dislike_epoch_array = np.empty((len(dislike_path)), dtype = object)
@@ -158,7 +169,7 @@ def music_preprocessing(path, begin, end) :
 
     print('\n')
 
-    X = np.hstack(np.append(like_epoch_array,dislike_epoch_array)) #15*4 = 60 *2 = 120
+    X = np.hstack(np.append(like_epoch_array,dislike_epoch_array)) 
     Y = np.hstack(np.append(like_epoch_labels,dislike_epoch_labels))
     print(np.shape(X),np.shape(Y))
     
