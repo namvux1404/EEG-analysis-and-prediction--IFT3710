@@ -58,7 +58,7 @@ PART II: TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
 
 Xgboost
 
-	1-Upsate the path for the data on the participants and for the data of the daframes for the features Extracted from the data in the Xgboost notebook
+	1-Update the path for the data on the participants and for the data of the daframes for the features in the Xgboost notebook
 	2-Run the Xgboost notebooks, you can change the hyperparameters for the model optimisation
 
 
