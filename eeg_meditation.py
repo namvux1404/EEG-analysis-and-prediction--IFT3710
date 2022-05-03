@@ -125,7 +125,7 @@ def med_preprocessing(path):
 
     # We onlt take 20 patients instead 50 in each category.
     med_path = med_path[0:10]
-    think_path = think_path[0:11]
+    think_path = think_path[0:11]  # there is 10th file is damage
     print('shape of med and think path : ', len(med_path), len(think_path))
 
     print('----------------')
@@ -154,7 +154,8 @@ def med_preprocessing(path):
             print('counting i = ', i)
             think_epoch_array[i] = read_bdf_data(think_path[i])
 
-    think_epoch_array = np.delete(think_epoch_array, 10, 0)
+    think_epoch_array = np.delete(
+        think_epoch_array, 10, 0)  # remove file damage
 
     print('\n')
     print('shape of med_epoch_array and med_epoch_array[0]: ', np.shape(med_epoch_array),

@@ -34,7 +34,7 @@ path = sys.argv[1]
 
 print('path =', path)
 
-# Etape pour preprocessing dataset music
+# Etape pour preprocessing dataset meditation-thinking
 X, Y, features, group = med_preprocessing(path)
 
 print('EEG ANALYSIS: MEDITATION VS THINKING \n')
@@ -91,8 +91,6 @@ def split_data(X, Y, size1, size2):
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
-# ------------- Dataloader in Torch --> to have appropriate format for model -------
-
 
 # Function to load data in appropriate shape for Pytorch
 def dataLoaderPytorch(x_train, x_val, x_test, input_size, seq_len):
@@ -113,6 +111,8 @@ def dataLoaderPytorch(x_train, x_val, x_test, input_size, seq_len):
     return x_train_tensor, x_val_tensor, x_test_tensor
 
 
+# NOTE: The code for Dataset and Dataloaders were inspired by the tutorial:
+# Link: https://github.com/python-engineer/pytorchTutorial/blob/master/09_dataloader.py
 class EEGTrain(Dataset):  # class for EEG train
 
     def __init__(self):
@@ -160,6 +160,13 @@ class EEGTest(Dataset):  # class for EEG Test
         # len(dataset)
         return self.n_samples
 
+# RNN NETWORK
+# Link: https://pytorch.org/docs/stable/generated/torch.nn.RNN.html
+
+# The code for the RNN Model, and the training of the RNN Model is taken
+# from the following tutorial about RNN, LSTM and GRU:
+# Link: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
+
 
 class RNN(nn.Module):  # Class for RNN
     def __init__(self, input_size, hidden_size, num_layers, num_classes):
@@ -190,6 +197,7 @@ def check_accuracy(loader, model, message):
     num_samples = 0
     model.eval()
 
+    # Source: https://github.com/python-engineer/pytorch-examples/blob/master/rnn-lstm-gru/main.py
     with torch.no_grad():
         for x, labels in loader:
 
