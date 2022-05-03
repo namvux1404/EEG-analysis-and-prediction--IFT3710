@@ -61,7 +61,10 @@ PART III : TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
 
 Xgboost
 
-	1-Update the path for the data on the participants and for the data of the daframes for the features in the Xgboost notebook
-	2-Run the Xgboost notebooks, you can change the hyperparameters for the model optimisation
+1-Update the path for the data on the participants and for the data of the daframes for the features in the Xgboost notebook
+2-Run the Xgboost notebooks, you can change the hyperparameters for the model optimisation
+
+Utilities and HdfCreation Files:
+	These files are references as of how we extracted the Fourier transformation data,but the extracted csv is already in the git in the Xgboost data folder
 
 
