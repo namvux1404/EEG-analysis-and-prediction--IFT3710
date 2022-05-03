@@ -228,13 +228,13 @@ def RNN_meditation():  # Principal function to create model RNN and train
 
     val_data = EEGVal()
     val_dl = DataLoader(dataset=val_data, batch_size=batch_size, shuffle=True)
-
+    print('----- done DataLoader val_data')
+    
     test_data = EEGTest()
     test_dl = DataLoader(
         dataset=test_data, batch_size=batch_size, shuffle=True)
-    print('----- done DataLoader train_data')
-    print('----- done DataLoader val_data')
-    print('\n')
+    print('----- done DataLoader test_data')
+    
     print('-----------------------')
     # ----- Create model ----
     print('--* Create model *--')
