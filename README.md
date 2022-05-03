@@ -56,5 +56,9 @@ PART II: TRANSFER LEARNING IN ONE DATASET (MUSIC GROUP 1 - MUSIC GROUP 2)
 - Step 3: Apply Transfer Learning from group 1 to group 2
 	-> python IFT3710/transfer_learning.py 2
 
+Xgboost
+
+	1-Upsate the path for the data on the participants and for the data of the daframes for the features Extracted from the data in the Xgboost notebook
+	2-Run the Xgboost notebooks, you can change the hyperparameters for the model optimisation
 
 
