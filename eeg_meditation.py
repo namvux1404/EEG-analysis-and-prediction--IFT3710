@@ -4,6 +4,8 @@ File: eeg_meditation.py
 - This file focuses on reading the raw EEG data from the meditation-thinking dataset.
 - The extension files of EEG signals are BDF (eeglab).
 - This file will also preprocessing the dataset and separate them into features and labels.
+
+The code features extraction is inspire from : https://www.youtube.com/watch?v=cuEV-eB3Dyo&list=PLtGXgNsNHqPTgP9wyR8pmy2EuM2ZGHU5Z&index=2
 '''
 
 from glob import glob
